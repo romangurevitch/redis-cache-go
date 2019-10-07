@@ -1,16 +1,16 @@
-package contact
+package server
 
 import (
 	"bytes"
 	config "github.com/romangurevitch/redis-cache-go"
 	"github.com/romangurevitch/redis-cache-go/crypto"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
 )
 
+// Get contact handler, get contact from the cache if available or redirect the request to Autopilot servers.
 func (s *server) getContactHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
@@ -49,11 +49,13 @@ func (s *server) getContactHandler() http.HandlerFunc {
 				return nil
 			}
 
-			s.logger.Printf("caching %s", contactId)
-			body, err := s.store(contactId, r.Header.Get(config.ApiKeyHeader), resp.Body)
+			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				return err
 			}
+
+			s.logger.Printf("caching %s", contactId)
+			s.store(contactId, r.Header.Get(config.ApiKeyHeader), body)
 
 			resp.Body = ioutil.NopCloser(bytes.NewReader(body))
 			return nil
@@ -61,6 +63,7 @@ func (s *server) getContactHandler() http.HandlerFunc {
 	}
 }
 
+// Create new contact, invalidate the cache.
 func (s *server) postContactHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
@@ -85,21 +88,16 @@ func (s *server) postContactHandler() http.HandlerFunc {
 	}
 }
 
-func (s *server) store(contactCacheKey, apiKey string, body io.ReadCloser) ([]byte, error) {
-	content, err := ioutil.ReadAll(body)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.cache.Store(crypto.Hash(contactCacheKey, apiKey), content)
+// Cache the response body
+func (s *server) store(contactCacheKey, apiKey string, contact []byte) {
+	err := s.cache.Store(crypto.Hash(contactCacheKey, apiKey), contact)
 	if err != nil {
 		// failed cache should not fail the request
 		s.logger.Println(err.Error())
 	}
-
-	return content, nil
 }
 
+// Load contact from the cache if available
 func (s *server) load(contactCacheKey, apiKey string) ([]byte, bool) {
 	contact, err := s.cache.Load(crypto.Hash(contactCacheKey, apiKey))
 	if err != nil {
@@ -111,6 +109,7 @@ func (s *server) load(contactCacheKey, apiKey string) ([]byte, bool) {
 	return contact, contact != nil
 }
 
+// Logging handler
 func (s *server) log(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Println(r.Method, r.URL.Path, r.RemoteAddr)

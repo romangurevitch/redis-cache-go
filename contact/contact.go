@@ -3,7 +3,7 @@ package main
 import (
 	config "github.com/romangurevitch/redis-cache-go"
 	"github.com/romangurevitch/redis-cache-go/cache"
-	"github.com/romangurevitch/redis-cache-go/contact"
+	"github.com/romangurevitch/redis-cache-go/server"
 	"log"
 )
 
@@ -14,7 +14,7 @@ func main() {
 	}
 	defer redisCache.Close()
 
-	cachedServer, err := contact.NewContactServer(config.ApiBaseUrl, redisCache)
+	cachedServer, err := server.NewContactServer(config.ApiBaseUrl, redisCache)
 	if err != nil {
 		log.Fatalf("could not create contact server: %v", err)
 	}

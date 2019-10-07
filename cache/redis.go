@@ -12,19 +12,21 @@ type Cache interface {
 	// Invalidate key
 	Invalidate() error
 
+	// Close the cache client
 	Close() error
 }
 
+type redisCache struct {
+	radix *radix.Pool
+}
+
+// Create new redis cache
 func NewRedis(network, addr string, size int) (*redisCache, error) {
 	pool, err := radix.NewPool(network, addr, size)
 	if err != nil {
 		return nil, err
 	}
 	return &redisCache{radix: pool}, nil
-}
-
-type redisCache struct {
-	radix *radix.Pool
 }
 
 func (r *redisCache) Store(key string, val []byte) error {

@@ -1,4 +1,4 @@
-package contact
+package server
 
 import (
 	"context"
@@ -13,6 +13,14 @@ import (
 	"time"
 )
 
+type server struct {
+	cache  cache.Cache
+	router *http.ServeMux
+	logger *log.Logger
+	apiUrl *url.URL
+}
+
+// Create new cached contact server
 func NewContactServer(apiPath string, cache cache.Cache) (*server, error) {
 	apiUrl, err := url.Parse(apiPath)
 	if err != nil {
@@ -26,13 +34,7 @@ func NewContactServer(apiPath string, cache cache.Cache) (*server, error) {
 	}, nil
 }
 
-type server struct {
-	cache  cache.Cache
-	router *http.ServeMux
-	logger *log.Logger
-	apiUrl *url.URL
-}
-
+// Start the server
 func (s *server) Start() {
 	s.logger.Println("Caching contact server is starting...")
 
@@ -73,6 +75,7 @@ func (s *server) Start() {
 	s.logger.Println("Server stopped")
 }
 
+// Redirect request to the provided url
 func (s *server) redirect(url *url.URL, w http.ResponseWriter, r *http.Request, interceptResponse func(*http.Response) error) {
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.ModifyResponse = interceptResponse
@@ -81,6 +84,7 @@ func (s *server) redirect(url *url.URL, w http.ResponseWriter, r *http.Request, 
 	proxy.ServeHTTP(w, r)
 }
 
+// Set redirect headers
 func (s *server) setReverseProxyHeaders(url *url.URL, r *http.Request) {
 	// Update the headers to allow for SSL redirection
 	r.URL.Host = url.Host

@@ -1,4 +1,4 @@
-package contact
+package server
 
 import (
 	"bytes"
@@ -35,18 +35,6 @@ func TestGetSimpleContact(t *testing.T) {
 	checkContent(t, resp, testServerRespContent)
 }
 
-func TestGetWrongPath(t *testing.T) {
-	testServer := mockSimpleTestServer(t, nil)
-
-	contactServer := mockContactServer(t, testServer)
-	defer contactServer.close(t)
-
-	req := newGetRequest(t, "contactId/wrong-path", "apiKey")
-	resp := exec(contactServer, req)
-
-	checkStatusCode(t, resp, http.StatusNotFound)
-}
-
 func TestVerifyCacheHit(t *testing.T) {
 	testServerRespContent := map[string]string{"contact_id": "0", "Email": "some@email.com"}
 	testServer := mockSimpleTestServer(t, testServerRespContent)
@@ -54,7 +42,7 @@ func TestVerifyCacheHit(t *testing.T) {
 	contactServer := mockContactServer(t, testServer)
 	defer contactServer.close(t)
 
-	const contactId = "contact----Id"
+	const contactId = "contactId"
 	const apiKey = "apiKey"
 
 	firstReq := newGetRequest(t, contactId, apiKey)
