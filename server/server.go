@@ -79,16 +79,5 @@ func (s *server) Start() {
 func (s *server) redirect(url *url.URL, w http.ResponseWriter, r *http.Request, interceptResponse func(*http.Response) error) {
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.ModifyResponse = interceptResponse
-
-	s.setReverseProxyHeaders(url, r)
 	proxy.ServeHTTP(w, r)
-}
-
-// Set redirect headers
-func (s *server) setReverseProxyHeaders(url *url.URL, r *http.Request) {
-	// Update the headers to allow for SSL redirection
-	r.URL.Host = url.Host
-	r.URL.Scheme = url.Scheme
-	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-	r.Host = url.Host
 }

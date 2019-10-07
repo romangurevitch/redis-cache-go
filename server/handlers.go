@@ -38,13 +38,8 @@ func (s *server) getContactHandler() http.HandlerFunc {
 			return
 		}
 
-		redirectUrl, err := s.apiUrl.Parse(r.URL.Path)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		s.logger.Printf("redirecting to %v\n", redirectUrl)
-		s.redirect(redirectUrl, w, r, func(resp *http.Response) error {
+		s.logger.Printf("redirecting to %v\n", s.apiUrl)
+		s.redirect(s.apiUrl, w, r, func(resp *http.Response) error {
 			if resp.StatusCode != http.StatusOK {
 				return nil
 			}
@@ -71,14 +66,8 @@ func (s *server) postContactHandler() http.HandlerFunc {
 			return
 		}
 
-		redirectUrl, err := s.apiUrl.Parse(r.URL.Path)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		s.logger.Printf("redirecting to %v\n", redirectUrl)
-		s.redirect(redirectUrl, w, r, func(resp *http.Response) error {
+		s.logger.Printf("redirecting to %v\n", s.apiUrl)
+		s.redirect(s.apiUrl, w, r, func(resp *http.Response) error {
 			if resp.StatusCode == http.StatusOK {
 				s.logger.Printf("invalidating cache")
 				return s.cache.Invalidate()
