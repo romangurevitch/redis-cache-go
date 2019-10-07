@@ -6,7 +6,6 @@ import (
 	"github.com/romangurevitch/redis-cache-go/crypto"
 	"io/ioutil"
 	"net/http"
-	"regexp"
 	"strings"
 )
 
@@ -14,10 +13,6 @@ import (
 func (s *server) getContactHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-			return
-		}
-		if match, err := regexp.MatchString("/contact/[^/]+$", r.URL.Path); err != nil || !match {
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
