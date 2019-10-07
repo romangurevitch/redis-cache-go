@@ -16,7 +16,13 @@ To test the project run:
 ## Running the project
 In order to run the server redis instance must run and configured correctly in the config file. 
 
-To run the contact caching server: 
+### Running Redis instance with docker
+To start Redis: 
+
+`docker run -d -p 6379:6379 redis`
+
+### Start the service
+To start the contact caching server: 
 
 `go run contact/contact.go`
 
