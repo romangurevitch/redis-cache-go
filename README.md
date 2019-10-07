@@ -14,7 +14,7 @@ To test the project run:
 `go test github.com/romangurevitch/redis-cache-go/...`
 
 ## Running the project
-In order to run the server redis instance must run and configured correctly in the config file. 
+In order to run the server Redis instance must be running and configured correctly in the config file. 
 
 ### Running Redis instance with docker
 To start Redis: 
